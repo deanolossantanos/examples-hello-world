@@ -86,3 +86,25 @@
               </sl-heading>
 
               <div style="flex: 1; min-height: 0;">
+                <iframe id="viewer-frame" src="about:blank"></iframe>
+              </div>
+            </sl-card>
+          </div>
+        </sl-split-panel>
+      </div>
+    </div>
+
+    <script type="module">
+      const menu = document.getElementById("url-menu");
+      const frame = document.getElementById("viewer-frame");
+      const title = document.getElementById("viewer-title");
+
+      menu.addEventListener("sl-select", (event) => {
+        const item = event.detail.item;
+        const url = item.value;
+        frame.src = url;
+        title.textContent = url;
+      });
+    </script>
+  </body>
+</html>
