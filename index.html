@@ -1,110 +1,159 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>Shoelace URL Viewer</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shoelace URL Viewer</title>
 
-    <!-- Shoelace theme -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.13.0/dist/themes/light.css"
-    />
+  <!-- Shoelace theme -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.13.0/dist/themes/light.css"
+  />
 
-    <!-- Shoelace components -->
-    <script
-      type="module"
-      src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.13.0/dist/shoelace.js"
-    ></script>
+  <!-- Shoelace components -->
+  <script
+    type="module"
+    src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.13.0/dist/shoelace.js"
+  ></script>
 
-    <style>
-      html, body {
-        height: 100%;
-        margin: 0;
-      }
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: var(--sl-color-neutral-50);
+      font-family: var(--sl-font-sans);
+    }
 
-      .layout {
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
+    .app-shell {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
-      header {
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid var(--sl-color-neutral-200);
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
+    header {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--sl-color-neutral-200);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: white;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
 
-      .content {
-        flex: 1;
-        min-height: 0;
-      }
+    .main {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+    }
 
-      .url-list {
-        height: 100%;
-        overflow-y: auto;
-        padding: 0.5rem;
-      }
+    sl-split-panel {
+      --divider-width: 4px;
+      --divider-color: var(--sl-color-neutral-300);
+      height: 100%;
+    }
 
-      iframe {
-        width: 100%;
-        height: 100%;
-        border: none;
-        border-radius: var(--sl-border-radius-large);
-      }
-    </style>
-  </head>
+    /* LEFT SIDEBAR */
+    .sidebar {
+      height: 100%;
+      overflow-y: auto;
+      padding: 0.75rem;
+      background: var(--sl-color-neutral-100);
+      border-right: 1px solid var(--sl-color-neutral-200);
+    }
 
-  <body>
-    <div class="layout">
-      <header>
-        <sl-icon name="link-45deg"></sl-icon>
-        <sl-heading size="medium">Shoelace URL Viewer</sl-heading>
-      </header>
+    .sidebar sl-card {
+      width: 100%;
+    }
 
-      <div class="content">
-        <sl-split-panel position="25%">
-          <!-- LEFT SIDE -->
-          <div slot="start" class="url-list">
-            <sl-card>
-              <sl-heading size="small" slot="header">Links</sl-heading>
-              <sl-menu id="url-menu">
-                <sl-menu-item value="https://deno.land">Deno</sl-menu-item>
-                <sl-menu-item value="https://deno.com/deploy">Deno Deploy</sl-menu-item>
-                <sl-menu-item value="https://shoelace.style">Shoelace</sl-menu-item>
-                <sl-menu-item value="https://example.com">Example.com</sl-menu-item>
-              </sl-menu>
-            </sl-card>
-          </div>
+    /* RIGHT VIEWER */
+    .viewer-container {
+      height: 100%;
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+    }
 
-          <!-- RIGHT SIDE -->
-          <div slot="end" style="padding: 0.75rem; height: 100%;">
-            <sl-card style="height: 100%; display: flex; flex-direction: column;">
-              <sl-heading size="small" slot="header" id="viewer-title">
-                Select a link
-              </sl-heading>
+    .viewer-card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
 
-              <div style="flex: 1; min-height: 0;">
-                <iframe id="viewer-frame" src="about:blank"></iframe>
-              </div>
-            </sl-card>
-          </div>
-        </sl-split-panel>
-      </div>
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: var(--sl-border-radius-large);
+      background: white;
+    }
+
+    /* Improve menu spacing */
+    sl-menu-item {
+      padding: 0.5rem 0.75rem;
+      border-radius: var(--sl-border-radius-medium);
+      cursor: pointer;
+    }
+
+    sl-menu-item:hover {
+      background: var(--sl-color-neutral-200);
+    }
+
+    sl-menu-item::part(base) {
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-shell">
+    <header>
+      <sl-icon name="link-45deg"></sl-icon>
+      <sl-heading size="medium">Shoelace URL Viewer</sl-heading>
+    </header>
+
+    <div class="main">
+      <sl-split-panel position="25%">
+        <!-- LEFT SIDEBAR -->
+        <div slot="start" class="sidebar">
+          <sl-card>
+            <sl-heading size="small" slot="header">Links</sl-heading>
+            <sl-menu id="url-menu">
+              <sl-menu-item value="https://deno.land">Deno</sl-menu-item>
+              <sl-menu-item value="https://deno.com/deploy">Deno Deploy</sl-menu-item>
+              <sl-menu-item value="https://shoelace.style">Shoelace</sl-menu-item>
+              <sl-menu-item value="https://example.com">Example.com</sl-menu-item>
+            </sl-menu>
+          </sl-card>
+        </div>
+
+        <!-- RIGHT VIEWER -->
+        <div slot="end" class="viewer-container">
+          <sl-card class="viewer-card">
+            <sl-heading size="small" slot="header" id="viewer-title">
+              Select a link
+            </sl-heading>
+            <iframe id="viewer-frame" src="about:blank"></iframe>
+          </sl-card>
+        </div>
+      </sl-split-panel>
     </div>
+  </div>
 
-    <script type="module">
-      const menu = document.getElementById("url-menu");
-      const frame = document.getElementById("viewer-frame");
-      const title = document.getElementById("viewer-title");
+  <script type="module">
+    const menu = document.getElementById("url-menu");
+    const frame = document.getElementById("viewer-frame");
+    const title = document.getElementById("viewer-title");
 
-      menu.addEventListener("sl-select", (event) => {
-        const item = event.detail.item;
-        const url = item.value;
-        frame.src = url;
-        title.textContent = url;
-      });
-    </script>
-  </body>
+    menu.addEventListener("sl-select", (event) => {
+      const item = event.detail.item;
+      const url = item.value;
+      frame.src = url;
+      title.textContent = url;
+    });
+  </script>
+</body>
 </html>
