@@ -1,4 +1,4 @@
-// main.ts — robust static server with SPA fallback
+// main.ts
 import { serve } from "https://deno.land/std@0.201.0/http/server.ts";
 import { extname } from "https://deno.land/std@0.201.0/path/mod.ts";
 
@@ -16,40 +16,42 @@ const MIME: Record<string, string> = {
   ".map": "application/octet-stream",
 };
 
-console.log("Starting static server (repo root)"); // visible in Deploy logs
+console.log("Starting static server (repo root)");
 
 serve(async (req) => {
   try {
     const url = new URL(req.url);
-    let pathname = decodeURIComponent(url.pathname);
+    const pathnameRaw = decodeURIComponent(url.pathname);
 
-    // Normalize and prevent path traversal
-    if (pathname.includes("..")) {
+    // Fast health check for warm-up probes
+    if (pathnameRaw === "/_health") {
+      return new Response("ok", { status: 200 });
+    }
+
+    // Prevent path traversal
+    if (pathnameRaw.includes("..")) {
       return new Response("Forbidden", { status: 403 });
     }
 
-    // Default to index.html for root or empty path
-    if (pathname === "/" || pathname === "") {
+    // Serve root -> index.html
+    if (pathnameRaw === "/" || pathnameRaw === "") {
       const body = await Deno.readFile("index.html");
       return new Response(body, { status: 200, headers: { "content-type": "text/html; charset=utf-8" } });
     }
 
-    // Trim leading slash
-    if (pathname.startsWith("/")) pathname = pathname.slice(1);
-
-    // Try to read the file from repo root
+    // Trim leading slash and serve file
+    let pathname = pathnameRaw.startsWith("/") ? pathnameRaw.slice(1) : pathnameRaw;
     try {
       const file = await Deno.readFile(pathname);
       const ext = extname(pathname).toLowerCase();
       const contentType = MIME[ext] ?? "application/octet-stream";
       return new Response(file, { status: 200, headers: { "content-type": contentType } });
     } catch (err) {
-      // If file not found, return index.html for SPA routes
       if (err instanceof Deno.errors.NotFound) {
+        // SPA fallback
         const body = await Deno.readFile("index.html");
         return new Response(body, { status: 200, headers: { "content-type": "text/html; charset=utf-8" } });
       }
-      // Other errors: log and return 500
       console.error("File read error:", err);
       return new Response("Internal Server Error", { status: 500 });
     }
