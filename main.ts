@@ -1,6 +1,10 @@
-// main.ts
+// main.ts — Qwik SSR + static file server for Deno Deploy
+
 import { serve } from "https://deno.land/std@0.201.0/http/server.ts";
-import { extname } from "https://deno.land/std@0.201.0/path/mod.ts";
+import { extname, join } from "https://deno.land/std@0.201.0/path/mod.ts";
+
+// Qwik SSR entry
+import render from "./src/entry.ssr.tsx";
 
 const MIME: Record<string, string> = {
   ".html": "text/html; charset=utf-8",
@@ -16,47 +20,61 @@ const MIME: Record<string, string> = {
   ".map": "application/octet-stream",
 };
 
-console.log("Starting static server (repo root)");
+console.log("🚀 Starting Qwik SSR server on Deno Deploy");
 
 serve(async (req) => {
   try {
     const url = new URL(req.url);
-    const pathnameRaw = decodeURIComponent(url.pathname);
+    const pathname = decodeURIComponent(url.pathname);
 
-    // Fast health check for warm-up probes
-    if (pathnameRaw === "/_health") {
+    // Health check
+    if (pathname === "/_health") {
       return new Response("ok", { status: 200 });
     }
 
     // Prevent path traversal
-    if (pathnameRaw.includes("..")) {
+    if (pathname.includes("..")) {
       return new Response("Forbidden", { status: 403 });
     }
 
-    // Serve root -> index.html
-    if (pathnameRaw === "/" || pathnameRaw === "") {
-      const body = await Deno.readFile("index.html");
-      return new Response(body, { status: 200, headers: { "content-type": "text/html; charset=utf-8" } });
+    // Try static files from /public and /dist
+    const staticPaths = [
+      join("public", pathname),
+      join("dist", pathname),
+    ];
+
+    for (const filePath of staticPaths) {
+      try {
+        const file = await Deno.readFile(filePath);
+        const ext = extname(filePath).toLowerCase();
+        const type = MIME[ext] ?? "application/octet-stream";
+
+        return new Response(file, {
+          status: 200,
+          headers: { "content-type": type },
+        });
+      } catch (_) {
+        // ignore and continue
+      }
     }
 
-    // Trim leading slash and serve file
-    let pathname = pathnameRaw.startsWith("/") ? pathnameRaw.slice(1) : pathnameRaw;
-    try {
-      const file = await Deno.readFile(pathname);
-      const ext = extname(pathname).toLowerCase();
-      const contentType = MIME[ext] ?? "application/octet-stream";
-      return new Response(file, { status: 200, headers: { "content-type": contentType } });
-    } catch (err) {
-      if (err instanceof Deno.errors.NotFound) {
-        // SPA fallback
-        const body = await Deno.readFile("index.html");
-        return new Response(body, { status: 200, headers: { "content-type": "text/html; charset=utf-8" } });
-      }
-      console.error("File read error:", err);
-      return new Response("Internal Server Error", { status: 500 });
-    }
+    // --- SSR fallback ---
+    const result = await render({
+      url: req.url,
+      method: req.method,
+      headers: req.headers,
+    });
+
+    return new Response(result.html, {
+      status: result.status ?? 200,
+      headers: {
+        "content-type": "text/html; charset=utf-8",
+        ...Object.fromEntries(result.headers ?? []),
+      },
+    });
+
   } catch (err) {
-    console.error("Unhandled error:", err);
+    console.error("Server error:", err);
     return new Response("Internal Server Error", { status: 500 });
   }
 });
