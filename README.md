@@ -1,85 +1,42 @@
-# Qwik City App ⚡️
+Qwik SSR on Deno Deploy
+This repository contains the production build output of a Qwik City application, packaged as a standalone Deno server for deployment on Deno Deploy.
 
-- [Qwik Docs](https://qwik.dev/)
-- [Discord](https://qwik.dev/chat)
-- [Qwik GitHub](https://github.com/QwikDev/qwik)
-- [@QwikDev](https://twitter.com/QwikDev)
-- [Vite](https://vitejs.dev/)
+📁 Project Structure
+Code
+dist/                 Static client assets (Qwik client build)
+server/               Qwik SSR server bundle
+  entry.deno.js       Self-contained Deno server (entrypoint)
+package.json          Metadata only (not used for deployment)
+README.md             This file
+🚀 Running Locally
+You can run the production server locally using Deno:
 
----
+sh
+deno run --allow-net --allow-read server/entry.deno.js
+Then open:
 
-## Project Structure
+Code
+http://localhost:3009
+🌐 Deploying to Deno Deploy
+Set the entrypoint to:
 
-This project is using Qwik with [QwikCity](https://qwik.dev/qwikcity/overview/). QwikCity is just an extra set of tools on top of Qwik to make it easier to build a full site, including directory-based routing, layouts, and more.
+Code
+server/entry.deno.js
+Deno Deploy will automatically start the server using:
 
-Inside your project, you'll see the following directory structure:
+ts
+Deno.serve(...)
+🛠 Development Workflow
+This repository contains only the compiled output.
+To continue developing the Qwik application, use the original source project that contains:
 
-```
-├── public/
-│   └── ...
-└── src/
-    ├── components/
-    │   └── ...
-    └── routes/
-        └── ...
-```
+Code
+src/
+public/
+vite.config.ts
+tsconfig.json
+Then rebuild:
 
-- `src/routes`: Provides the directory-based routing, which can include a hierarchy of `layout.tsx` layout files, and an `index.tsx` file as the page. Additionally, `index.ts` files are endpoints. Please see the [routing docs](https://qwik.dev/qwikcity/routing/overview/) for more info.
-
-- `src/components`: Recommended directory for components.
-
-- `public`: Any static assets, like images, can be placed in the public directory. Please see the [Vite public directory](https://vitejs.dev/guide/assets.html#the-public-directory) for more info.
-
-## Add Integrations and deployment
-
-Use the `npm run qwik add` command to add additional integrations. Some examples of integrations includes: Cloudflare, Netlify or Express Server, and the [Static Site Generator (SSG)](https://qwik.dev/qwikcity/guides/static-site-generation/).
-
-```shell
-npm run qwik add # or `yarn qwik add`
-```
-
-## Development
-
-Development mode uses [Vite's development server](https://vitejs.dev/). The `dev` command will server-side render (SSR) the output during development.
-
-```shell
-npm start # or `yarn start`
-```
-
-> Note: during dev mode, Vite may request a significant number of `.js` files. This does not represent a Qwik production build.
-
-## Preview
-
-The preview command will create a production build of the client modules, a production build of `src/entry.preview.tsx`, and run a local server. The preview server is only for convenience to preview a production build locally and should not be used as a production server.
-
-```shell
-npm run preview # or `yarn preview`
-```
-
-## Production
-
-The production build will generate client and server modules by running both client and server build commands. The build command will use Typescript to run a type check on the source code.
-
-```shell
-npm run build # or `yarn build`
-```
-
-## Deno Server
-
-This app has a minimal [Deno server](https://docs.deno.com/runtime/tutorials/http_server) implementation. After running a full build, you can preview the build using the command:
-
-```
-npm run serve
-```
-
-Then visit [http://localhost:8080/](http://localhost:8080/)
-
-## Deno Server
-
-This app has a minimal [Deno server](https://docs.deno.com/runtime/tutorials/http_server) implementation. After running a full build, you can preview the build using the command:
-
-```
-npm run serve
-```
-
-Then visit [http://localhost:8080/](http://localhost:8080/)
+sh
+npm run build
+And copy the updated dist/ and server/ folders into this repo.
