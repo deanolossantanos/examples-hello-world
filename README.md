@@ -1,6 +1,13 @@
 Qwik SSR on Deno Deploy
 This repository contains the production build output of a Qwik City application, packaged as a standalone Deno server for deployment on Deno Deploy.
 
+template created with npm create qwik@latest
+changed package.js jslint version to 9.32.0 from latest
+ran npm install
+npm run qwik add deno
+npm run build
+
+
 📁 Project Structure
 Code
 dist/                 Static client assets (Qwik client build)
