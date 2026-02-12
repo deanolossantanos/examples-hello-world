@@ -1,0 +1,1 @@
+import{v as s}from"./q-BriC_V0j.js";import{x as i}from"./q-BriC_V0j.js";const a=({cleanup:t})=>{const[o]=s(),e=setTimeout(()=>o.count=1,500);t(()=>clearTimeout(e));const r=setInterval(()=>o.count++,7e3);t(()=>clearInterval(r))};export{i as _hW,a as s_LQPhZ0qOjrk};

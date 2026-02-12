@@ -1,0 +1,1 @@
+import{_ as o}from"./q-BKZ00VYc.js";const t=()=>o(()=>import("./q-Bc1yoymQ.js"),[]),e=[["/",[t,()=>o(()=>import("./q-COfOCUbG.js"),[])]],["demo/flower/",[t,()=>o(()=>import("./q-CIsj8uQQ.js"),[])]],["demo/todolist/",[t,()=>o(()=>import("./q-BLTa33ZA.js"),[])]]],r=[];const s=!0;export{s as c,r as m,e as r};
