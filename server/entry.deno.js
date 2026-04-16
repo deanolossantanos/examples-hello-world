@@ -4,6 +4,7 @@ import { v as verifySerializable$1, _ as _serializeData, a as _deserializeData }
 import { s as setServerPlatform2, r as render } from './q-DqLNkdj9.js';
 import { join, fromFileUrl, extname } from 'https://deno.land/std/path/mod.ts';
 import qwikCityPlan from './@qwik-city-plan.js';
+//
 
 // packages/qwik-city/src/middleware/request-handler/error-handler.ts
 function getErrorHtml(status, e) {
